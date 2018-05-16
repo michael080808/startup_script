@@ -1,0 +1,2 @@
+# startup_script
+SEU-WLAN下的开机启动脚本，包括Python3下的seu-wlan的自动登陆和通过邮件发送本机IP地址
