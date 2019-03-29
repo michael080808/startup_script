@@ -211,23 +211,36 @@ def address():
 
 # 递送电子邮件
 def deliver():
-    message = MIMEText(address(), 'html', 'utf-8')
-    message['From'] = Header('%s <%s>' % (send_name, send_addr), 'utf-8')
-    message['To'] = Header('%s <%s>' % (recv_name, recv_addr), 'utf-8')
-    message['Subject'] = Header('IP Monitor Notice', 'utf-8')
+    address_now = address()
+    address_lst = ''
 
-    smtp_poster = smtplib.SMTP(smtp_server, smtp_port)
-    try:
-        smtp_poster.ehlo_or_helo_if_needed()
-        smtp_poster.starttls()
-        smtp_poster.login(username, password)
-        smtp_poster.sendmail(send_addr, recv_addr, message.as_string())
-        print('Success to Send IP Address!')
-    except smtplib.SMTPException as e:
-        print('Fail to Send IP Address! Error Information: \n')
-        raise e
-    finally:
-        smtp_poster.close()
+    if os.path.exists('address.html'):
+        with open('address.html', 'r') as file:   
+            address_lst = file.read()
+    else:
+        with open('address.html', 'w') as file:
+            file.write('')
+
+    if address_now != address_lst:
+        message = MIMEText(address_now, 'html', 'utf-8')
+        message['From'] = Header('%s <%s>' % (send_name, send_addr), 'utf-8')
+        message['To'] = Header('%s <%s>' % (recv_name, recv_addr), 'utf-8')
+        message['Subject'] = Header('IP Monitor Notice', 'utf-8')
+
+        smtp_poster = smtplib.SMTP(smtp_server, smtp_port)
+        try:
+            smtp_poster.ehlo_or_helo_if_needed()
+            smtp_poster.starttls()
+            smtp_poster.login(username, password)
+            smtp_poster.sendmail(send_addr, recv_addr, message.as_string())
+            with open('address.html', 'w') as file:
+                file.write(address_now)
+            print('Success to Send IP Address!')
+        except smtplib.SMTPException as e:
+            print('Fail to Send IP Address! Error Information: \n')
+            raise e
+        finally:
+            smtp_poster.close()
 
 
 if __name__ == '__main__':
